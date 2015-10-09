@@ -22,8 +22,17 @@ func NewArgumentParser(prog string) *ArgumentParser {
 }
 
 func (ap *ArgumentParser) ParseArgs(args, namespace string) {
+	var argList []string
+	if args == "" {
+		argList = os.Args[1:]
+	}
 	fmt.Printf("usage: %s [-h]\n", ap.prog)
-	fmt.Println(`
+
+	if 0 < len(argList) && (argList[0] == "-h" || argList[0] == "--help") {
+		fmt.Println(`
 optional arguments:
   -h, --help  show this help message and exit`)
+	} else {
+		fmt.Printf("%s: error: unrecognized arguments %s\n", ap.prog, argList[0])
+	}
 }
