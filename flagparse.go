@@ -4,11 +4,24 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 )
+
+type Namespace struct{}
+type actionsContainer struct{}
+type attributeHolder struct{}
+
+// def add_argument(self, *args, **kwargs):
+// args = 任意のタプルになる
+// kwargs = 任意個のディクショナリ
+func (ac *actionsContainer) AddArgument() {
+	fmt.Println("hoghoge")
+}
 
 // ArgumentParser is a struct for parsing command line strings
 type ArgumentParser struct {
 	prog string
+	*actionsContainer
 }
 
 // NewArgumentParser returns new ArgumentParser pointer
@@ -21,18 +34,56 @@ func NewArgumentParser(prog string) *ArgumentParser {
 	return ap
 }
 
-func (ap *ArgumentParser) ParseArgs(args, namespace string) {
-	var argList []string
-	if args == "" {
-		argList = os.Args[1:]
+func (ap *ArgumentParser) ParseArgs(args []string, ns *Namespace) *Namespace {
+	namespace, argList := ap.ParseKnownArgs(args, ns)
+	if 0 < len(argList) {
+		msg := fmt.Sprintf("unrecognized arguments: %s", strings.Join(argList, " "))
+		ap.Error(msg)
 	}
-	fmt.Printf("usage: %s [-h]\n", ap.prog)
+	return namespace
+}
 
-	if 0 < len(argList) && (argList[0] == "-h" || argList[0] == "--help") {
-		fmt.Println(`
-optional arguments:
-  -h, --help  show this help message and exit`)
-	} else {
-		fmt.Printf("%s: error: unrecognized arguments %s\n", ap.prog, argList[0])
-	}
+func (ap *ArgumentParser) ParseKnownArgs(args []string, namespace *Namespace) (*Namespace, []string) {
+	namespace, args = ap.parseKnownArgs(args, namespace)
+	return namespace, args
+}
+
+func (ap *ArgumentParser) parseKnownArgs(args []string, namespace *Namespace) (*Namespace, []string) {
+	return namespace, args
+}
+
+/*
+** ======================
+** Help-printing methods
+** ======================
+ */
+func (ap *ArgumentParser) PrintUsage(file *os.File) {
+	//ap.printMessage(ap.FormatUsage(), file)
+}
+
+func (ap *ArgumentParser) PrintHelp(file *os.File) {
+	//ap.printMessage(ap.FormatHelp(), file)
+}
+
+func (ap *ArgumentParser) printMessage(message string, file *os.File) {
+	fmt.Fprint(file, message)
+}
+
+/*
+** =================
+** Exiting methods
+** =================
+ */
+
+func (ap *ArgumentParser) Exit(status int, message string) {
+	ap.printMessage(message, os.Stderr)
+	os.Exit(status)
+}
+
+/* Error prints a usage message incorporating the message to stderr and exits.
+** If you override this in a struct, it should not return -- it should either exit or raise an exception.
+ */
+func (ap *ArgumentParser) Error(message string) {
+	ap.PrintUsage(os.Stderr)
+	ap.Exit(2, fmt.Sprintf("%s: error: %s\n", ap.prog, message))
 }
