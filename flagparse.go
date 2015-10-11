@@ -24,8 +24,22 @@ type ArgumentParser struct {
 	*actionsContainer
 }
 
+type ArgumentParserCommand struct {
+	prog                string
+	usage               string
+	description         string
+	epilog              string
+	parents             []interface{} //ArgumentParser TODO: interface
+	formatter           interface{}
+	prefixChars         string
+	fromfilePrefixChars interface{}
+	argumentDefault     interface{}
+	conflictHandler     string
+	addHelp             bool
+}
+
 // NewArgumentParser returns new ArgumentParser pointer
-func NewArgumentParser(prog string) *ArgumentParser {
+func NewArgumentParser(apc *ArgumentFactory) *ArgumentParser {
 	ap := &ArgumentParser{}
 	if prog == "" {
 		prog = path.Base(os.Args[0])
