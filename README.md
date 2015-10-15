@@ -1,2 +1,2 @@
-# flagparse
+# clier
 Command-line parsing library
