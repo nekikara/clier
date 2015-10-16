@@ -1,4 +1,4 @@
-package flagparse_test
+package clier_test
 
 import "testing"
 

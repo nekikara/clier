@@ -1,4 +1,4 @@
-package flagparse
+package clier
 
 import (
 	"log"
